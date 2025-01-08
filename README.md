@@ -32,6 +32,8 @@ virt_manager_macvtap: Creates a Bridge Macvtap Network mode. The VM will be visi
 
 virt_manager_route: Creates a Bridge Route Network mode. The VM will be visible to other machines, the host, and other VMs.
 
+virt_bridge: Create 100% bridge configuration network.
+
 virt_mac_spoofing: MAC Vendor Spoofing for anonymity for VMs in Macvtap Network. MAC spoofing works in files of libvirt, not directly in the OS.
 
 virt_network_spoofing: MAC Vendor Spoofing for anonymity in network configuration .xml files, allowing you to change the MAC address for a specific network.
