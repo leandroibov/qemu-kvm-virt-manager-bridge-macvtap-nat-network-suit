@@ -5,5 +5,19 @@ echo "Updating package list and installing necessary packages of qemu-kvm virt-m
 sudo apt update -y
 sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager -y
 
+echo;
+echo "-------------------------------";
+echo "List of all Virtual Machines"
+echo "-------------------------------";
+echo;
+sudo virsh list --all;
+echo;
+echo "-------------------------------";
+echo "List of all Networks"
+echo "-------------------------------";
+echo;
+sudo virsh net-list;
+echo;
+
 echo "Finished."
 

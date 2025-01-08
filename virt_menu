@@ -25,8 +25,9 @@ menu() {
   echo "5) virt_manager_default"
   echo "6) virt_manager_macvtap"
   echo "7) virt_manager_route"
-  echo "8) virt_mac_spoofing"
-  echo "9) virt_network_spoofing"
+  echo "8) virt_bridge"
+  echo "9) virt_mac_spoofing"
+  echo "10) virt_network_spoofing"
   echo "0) Exit"
 }
 
@@ -40,8 +41,9 @@ execute_command() {
     5) virt_manager_default ;;
     6) virt_manager_macvtap ;;
     7) virt_manager_route ;;
-    8) virt_mac_spoofing ;;
-    9) virt_network_spoofing ;;
+    8) virt_bridge ;;
+    9) virt_mac_spoofing ;;
+    10) virt_network_spoofing ;;
     0) echo "Exiting..."; exit 0 ;;
     *) echo "Invalid option, please choose a number between 0 and 9."; ;;
   esac

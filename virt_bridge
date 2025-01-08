@@ -11,27 +11,26 @@ fi
 echo "You are logged in as root. Continuing the script..."
 echo;
 
-
 echo "----------------------------------------------------------------------------------------------------";
-echo "QEMU-KVM Virt-Manager Macvtap Network Configuration";
+echo "QEMU-KVM Virt-Manager Bridge Network Configuration";
 echo "----------------------------------------------------------------------------------------------------";
 echo "";
-read -rp "Enter the network interface:" interface
-echo "The chosen network interface is: $interface"
+read -rp "Enter the bridge name you want to create:" bridge
+echo "The chosen bridge name is: $bridge"
 echo "";
 echo ""
 
-echo "Creating file macvtap.xml"
-cat > macvtap.xml << EOF
+
+echo "Creating file $bridge.xml"
+cat > $bridge.xml << EOF
 <network>
-  <name>macvtap</name>
-  <forward mode="bridge">
-    <interface dev="$interface"/>
-  </forward>
+    <name>$bridge</name>
+    <forward mode="bridge"/>
+    <bridge name="$bridge"/>
 </network>
 EOF
 
-sudo echo "Turn off the network for security";
+sudo echo "Turn off network...";
 sudo echo "";
 sudo echo "sudo nmcli networking off;";
 sudo service network-manager stop;
@@ -41,7 +40,7 @@ sudo echo "";
 
 
 echo;
-echo "Restarting virt-manager services..."
+echo "Restarting virt-manager service..."
 echo;
 sudo systemctl stop libvirtd.socket;
 sudo systemctl stop libvirtd-admin.socket;
@@ -67,29 +66,11 @@ sudo systemctl restart libvirtd-admin.socket;
 sudo systemctl restart libvirtd-ro.socket;
 
 echo;
-echo "Deleting firewall rules..."
+echo "Bridged Configuration do not add or modify firewall rules..."
 echo;
-sudo iptables -F  # Remove as regras de todas as chains
-sudo iptables -X  # Apaga todas as chains
-sudo iptables -Z  # Zera as regras de todas as chains
-sudo iptables -P INPUT ACCEPT;
-sudo iptables -P FORWARD ACCEPT;
-sudo iptables -P OUTPUT ACCEPT;
-sudo iptables -t filter -F;
-sudo iptables -t filter -X;
-sudo iptables -t filter -Z;
-sudo iptables -t nat -F;
-sudo iptables -t nat -X;
-sudo iptables -t nat -Z;
-sudo iptables -t mangle -F;
-sudo iptables -t mangle -X;
-sudo iptables -t mangle -Z;
-sudo iptables -t raw -F;
-sudo iptables -t raw -X;
-sudo iptables -t raw -Z;
 
 echo;
-echo "Alowing (ip forward)"
+echo "Allow (ip forward)..."
 echo;
 sudo echo "Command: sudo echo 1 > /proc/sys/net/ipv4/ip_forward";
 sudo echo 1 > /proc/sys/net/ipv4/ip_forward;
@@ -101,56 +82,23 @@ cat /proc/sys/net/ipv4/ip_forward;
 sudo echo "";
 
 echo;
-echo "Configuring virt-manager"
+echo "Configuring virt-manager..."
 echo;
 echo "sudo virsh list --all;";
 sudo virsh list --all;
 echo "";
-echo "sudo virsh net-define macvtap.xml;";
-sudo virsh net-define macvtap.xml;
+echo "sudo virsh net-define bridged-network.xml;";
+sudo virsh net-define $bridge.xml;
 echo "";
-echo "sudo virsh net-start macvtap;";
-sudo virsh net-start macvtap;
+echo "sudo virsh net-start bridged-network;";
+sudo virsh net-start $bridge;
 echo "";
-echo "sudo virsh net-autostart macvtap;";
-sudo virsh net-autostart macvtap;
+echo "sudo virsh net-autostart bridged-network;";
+sudo virsh net-autostart $bridge;
 echo;
 
 
-echo "Macvtap config do not add firewall rules so...";
-echo "Configuring basic firewall rules for security...";
-# Definindo políticas padrões
-######################
-sudo iptables  -P  INPUT DROP  # iptables a política padrão da chain INPUT é proibir tudo
-sudo iptables  -P  FORWARD DROP
-sudo iptables  -P  OUTPUT ACCEPT
-
-
-# Liberando a Loopback
-####################
-sudo iptables -A  INPUT -i lo -j ACCEPT
-sudo iptables -A  FORWARD -i lo -j DROP
-
-## Regras de segurança na internet e acessos
-## ethx tem que mudar, use ifconfig e cheque qual é, no caso ether
-#####################################
-sudo iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-sudo iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j DROP
-
-#Bloqueando novas conexões e conexões invalidas após ter a conexão estabelecida e relatada
-sudo iptables -A INPUT -m state --state INVALID -j DROP
-sudo iptables -A FORWARD -m state --state INVALID -j DROP
-sudo iptables -A INPUT -m state --state NEW -j DROP
-
-#SOMENTE PCS DENTRO DA REDE PODEM SE CONECTAR
-sudo iptables -A INPUT -p tcp --syn -s 192.168.0.0/255.255.255.0 -j ACCEPT;
-sudo iptables -A INPUT -p tcp --syn -j DROP;
-sudo iptables -A INPUT -i ppp0 -p udp --dport 0:30000 -j DROP;
-
-sudo echo "";
-
-
-sudo echo "Restart network";
+sudo echo "Restart network...";
 sudo echo "";
 sudo service network-manager stop;
 sudo service network-manager start;
@@ -199,6 +147,20 @@ sudo virsh net-list;
 echo;
 
 
+
+
+
+
+#echo "Example for a bridge configuration in cli mode...";
+#echo "#!/bin/bash"
+#echo "sudo virt-install \ "
+#echo "  --vcpus=1 \ "
+#echo "  --memory=1024 \ "
+#echo "  --cdrom=/home/user/Downloads/debian-10.8.0-amd64-DVD-1.iso \ "
+#echo "  --disk size=7 \ "
+#echo "  --os-variant=debian10 \ "
+#echo "  --network network=bridge"
+#echo;
 
 
 

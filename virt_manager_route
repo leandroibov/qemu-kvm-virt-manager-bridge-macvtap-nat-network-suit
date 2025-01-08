@@ -246,9 +246,17 @@ sudo echo "############################ End IPTABLES Rules #####################
 sudo echo "";
 
 echo;
-echo "List of all virt manager network"
+echo "-------------------------------";
+echo "List of all Virtual Machines"
+echo "-------------------------------";
 echo;
 sudo virsh list --all;
+echo;
+echo "-------------------------------";
+echo "List of all Networks"
+echo "-------------------------------";
+echo;
+sudo virsh net-list;
 echo;
 
 

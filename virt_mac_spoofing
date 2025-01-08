@@ -64,11 +64,18 @@ sudo systemctl status libvirtd-ro.socket;
 sudo systemctl status libvirtd;
 
 echo;
-echo "-----------------------------------------------------------------------------------------------------------------------";
-echo "List of virt-manager networks..."
-echo "-----------------------------------------------------------------------------------------------------------------------";
+echo "-------------------------------";
+echo "List of all Virtual Machines"
+echo "-------------------------------";
 echo;
 sudo virsh list --all;
+echo;
+echo "-------------------------------";
+echo "List of all Networks"
+echo "-------------------------------";
+echo;
+sudo virsh net-list;
+echo;
 
 
 

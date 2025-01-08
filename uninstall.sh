@@ -12,6 +12,7 @@ files=(
   "virt_manager_macvtap"
   "virt_manager_route"
   "virt_mac_spoofing"
+  "virt_bridge"
   "virt_network_spoofing"
   "virt_menu"
 )
