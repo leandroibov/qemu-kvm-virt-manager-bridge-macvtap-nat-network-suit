@@ -16,6 +16,12 @@ sudo ./install.sh
 
 To uninstall, just use uninstall.sh in the same way!
 
+## Starting Virt Manager Manager CLI
+
+in terminal, type:
+
+virt_menu
+
 ## What does each file or command do?
 
 virt_manager_start - Start virt manager services...
