@@ -28,4 +28,12 @@ virt_network_spoofing: MAC Vendor Spoofing for anonymity in network configuratio
 
 virt_menu: A menu with options to quickly activate these functions!
 
+### Doe monero para nos ajudar: 
+
+#### 87JGuuwXzoMGwQAcSD7cvS7D7iacPpN2f5bVqETbUvCgdEmrPZa12gh5DSiKKRgdU7c5n5x1UvZLj8PQ7AAJSso5CQxgjak
+
+##### Página oficial de segurança digital:
+
+https://traderprofissional.com.br/seguranca-digital.aspx
+
 
