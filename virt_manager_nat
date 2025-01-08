@@ -1,0 +1,206 @@
+#!/bin/bash
+
+echo;
+# Check if the UID is 0 (root)
+if [ "$(id -u)" -ne 0 ]; then
+    echo "This script must be run as root!" >&2
+    read -rp "The program will finish (Type 'ok' or 'any key'): " response1
+    exit 1  # Exit the script with an error code
+fi
+echo;
+
+echo "----------------------------------------------------------------------------------------------------";
+echo "QEMU-KVM Virt-Manager NAT Network Configuration";
+echo "----------------------------------------------------------------------------------------------------";
+
+# Function to display and read input, and assign the input to variables
+read_input() {
+    read -rp "$1" value
+    echo "$2: $value"
+    echo ""
+    #echo "$value"  # Return the value so we can assign it to the corresponding variable
+}
+
+# Choose between default or manual input
+echo "Choose an option: "
+echo "1) Use default network settings with ip 192.168.30.1"
+echo "2) Enter data manually"
+read -rp "Choose an option (1 or 2): " choice
+echo ""
+
+if [ "$choice" -eq 1 ]; then
+    # Default network settings
+ip="192.168.30.1";
+netmask="255.255.255.0";
+dhcp_min="192.168.30.50";
+dhcp_max="192.168.30.200";
+mac="52:54:00:c9:e3:99";
+    
+    echo "Default network selected."
+    echo "IP Address: $ip"
+    echo "Netmask: $netmask"
+    echo "DHCP Range: $dhcp_min - $dhcp_max"
+else
+    # Manual data input, assign the input values to variables
+read -rp "Enter the ip address:" ip
+echo "The chosen ip address is: $ip"
+echo "";
+
+read -rp "Enter the netmask:" netmask
+echo "The chosen netmask is: $netmask"
+echo "";
+
+read -rp "Dhcp range begin with:" dhcp_min
+echo "The chosen begining address range is: $dhcp_min"
+echo "";
+
+read -rp "Dhcp range finalizing with:" dhcp_max
+echo "The chosen final address range is: $dhcp_min"
+echo "";
+
+echo "Mac vendor spoofing with my program https://github.com/leandroibov/gerador-de-enderecos-mac";
+read -rp "Mac for mac spoofing  :" mac
+echo "The chosen final address range is: $mac"
+echo "";
+
+fi
+
+
+echo;
+echo "Creating nat.xml file to NAT network configuration"
+echo;
+echo "<network>" > nat.xml;
+  echo "<name>nat</name>" >> nat.xml;
+  echo "<forward mode='nat'>" >> nat.xml;
+    echo "<nat>" >> nat.xml;
+      echo "<port start='1024' end='65535'/>" >> nat.xml;
+    echo "</nat>" >> nat.xml;
+  echo "</forward>" >> nat.xml;
+  echo "<bridge name='br10' stp='on' delay='0'/>" >> nat.xml;
+  echo "<mac address='$mac'/>" >> nat.xml
+  echo "<ip address='$ip' netmask='$netmask'>" >> nat.xml;
+    echo "<dhcp>" >> nat.xml;
+      echo "<range start='$dhcp_min' end='$dhcp_max'/>" >> nat.xml;
+    echo "</dhcp>" >> nat.xml;
+  echo "</ip>" >> nat.xml;
+echo "</network>" >> nat.xml;
+
+sudo echo "Turning off network...";
+sudo echo "";
+sudo echo "sudo nmcli networking off;";
+sudo service network-manager stop;
+sudo systemctl stop NetworkManager;
+sudo nmcli networking off;
+sudo echo "";
+
+
+echo;
+echo "Restarting virt-manager services..."
+echo;
+sudo systemctl stop libvirtd.socket;
+sudo systemctl stop libvirtd-admin.socket;
+sudo systemctl stop libvirtd-ro.socket;
+sudo systemctl stop libvirtd;
+
+sudo systemctl status libvirtd.socket;
+sudo systemctl status libvirtd-admin.socket;
+sudo systemctl status libvirtd-ro.socket;
+
+sudo systemctl stop libvirtd;
+sudo systemctl disable libvirtd;
+sudo systemctl enable libvirtd;
+sudo systemctl start libvirtd;
+sudo systemctl restart libvirtd;
+sudo systemctl status libvirtd;
+
+sudo systemctl start libvirtd.socket;
+sudo systemctl start libvirtd-admin.socket;
+sudo systemctl start libvirtd-ro.socket;
+sudo systemctl restart libvirtd.socket;
+sudo systemctl restart libvirtd-admin.socket;
+sudo systemctl restart libvirtd-ro.socket;
+
+echo;
+echo "Deleting firewall rules";
+echo;
+sudo iptables -F  # Remove as regras de todas as chains
+sudo iptables -X  # Apaga todas as chains
+sudo iptables -Z  # Zera as regras de todas as chains
+sudo iptables -P INPUT ACCEPT;
+sudo iptables -P FORWARD ACCEPT;
+sudo iptables -P OUTPUT ACCEPT;
+sudo iptables -t filter -F;
+sudo iptables -t filter -X;
+sudo iptables -t filter -Z;
+sudo iptables -t nat -F;
+sudo iptables -t nat -X;
+sudo iptables -t nat -Z;
+sudo iptables -t mangle -F;
+sudo iptables -t mangle -X;
+sudo iptables -t mangle -Z;
+sudo iptables -t raw -F;
+sudo iptables -t raw -X;
+sudo iptables -t raw -Z;
+
+echo;
+echo "Alowing (ip forward)"
+echo;
+sudo echo "Command: sudo echo 1 > /proc/sys/net/ipv4/ip_forward";
+sudo echo 1 > /proc/sys/net/ipv4/ip_forward;
+sudo echo "";
+
+sudo echo "Checking cat /proc/sys/net/ipv4/ip_forward";
+sudo echo "Need be 1";
+cat /proc/sys/net/ipv4/ip_forward;
+sudo echo "";
+
+echo;
+echo "Configuring virt-manager"
+echo;
+sudo virsh list --all;
+sudo virsh net-define  nat.xml;
+sudo virsh net-start nat;
+sudo virsh net-autostart nat;
+ip addr show dev br10;
+
+sudo echo "Restarting network...";
+sudo echo "";
+sudo service network-manager stop;
+sudo service network-manager start;
+sudo service network-manager restart;
+sudo systemctl stop NetworkManager;
+sudo systemctl disable NetworkManager;
+sudo systemctl enable NetworkManager;
+sudo systemctl start NetworkManager;
+sudo systemctl restart NetworkManager;
+sudo nmcli networking off;
+sudo nmcli networking on;
+sudo echo;
+
+sudo echo "";
+echo "############################ IPTABLES Rules ############################"
+sudo echo "";
+sudo echo "############################ Table Filter ############################";
+sudo iptables -t filter -S;
+sudo echo "";
+
+sudo echo "############################ Table Nat ############################";
+sudo iptables -t nat -S;
+sudo echo "";
+
+sudo echo "############################ Table Mangle ############################";
+sudo iptables -t mangle -S;
+sudo echo "";
+
+sudo echo "############################ Table Raw ############################";
+sudo iptables -t raw -S;
+sudo echo "############################ End IPTABLES Rules ############################";
+sudo echo "";
+
+echo;
+echo "List of all virt manager network"
+echo;
+sudo virsh list --all;
+echo;
+
+

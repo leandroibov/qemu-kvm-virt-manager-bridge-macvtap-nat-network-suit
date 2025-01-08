@@ -1,0 +1,56 @@
+#!/bin/bash
+
+echo;
+# Check if the UID is 0 (root)
+if [ "$(id -u)" -ne 0 ]; then
+    echo "This script must be run as root!" >&2
+    read -rp "The program will finish (Type 'ok' or 'any key'): " response1
+    exit 1  # Exit the script with an error code
+fi
+
+# The script continues here if the user is root
+echo "You are logged in as root. Continuing the script..."
+echo;
+
+# Function to display the menu and allow the user to choose
+echo "----------------------------------------------"
+echo "QEMU-KVM Virt-Manager Menu: Network Settings"
+echo "----------------------------------------------"
+menu() {
+  echo "Choose an option:"
+  echo "1) virt_manager_start"
+  echo "2) virt_manager_stop"
+  echo "3) virt_manager_delete"
+  echo "4) virt_manager_nat"
+  echo "5) virt_manager_default"
+  echo "6) virt_manager_macvtap"
+  echo "7) virt_manager_route"
+  echo "8) virt_mac_spoofing"
+  echo "9) virt_network_spoofing"
+  echo "0) Exit"
+}
+
+# Function to execute the selected command
+execute_command() {
+  case $1 in
+    1) virt_manager_start ;;
+    2) virt_manager_stop ;;
+    3) virt_manager_delete ;;
+    4) virt_manager_nat ;;
+    5) virt_manager_default ;;
+    6) virt_manager_macvtap ;;
+    7) virt_manager_route ;;
+    8) virt_mac_spoofing ;;
+    9) virt_network_spoofing ;;
+    0) echo "Exiting..."; exit 0 ;;
+    *) echo "Invalid option, please choose a number between 0 and 9."; ;;
+  esac
+}
+
+# Main loop
+while true; do
+  menu  # Display the menu
+  read -p "Enter the number of your choice: " choice  # Read the user's choice
+  execute_command $choice  # Execute the corresponding command
+done
+

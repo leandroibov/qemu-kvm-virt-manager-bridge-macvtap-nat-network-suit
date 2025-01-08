@@ -1,0 +1,80 @@
+#!/bin/bash
+
+echo "Creating file default.xml for network configuration "
+cat > default.xml << EOF
+<network>
+  <name>default</name>
+  <uuid>168f6909-715c-4333-a34b-f74584d26328</uuid>
+  <forward mode="nat"/>
+  <bridge name="virbr0" stp="on" delay="0"/>
+  <mac address="52:54:00:48:3f:0c"/>
+  <ip address="192.168.122.1" netmask="255.255.255.0">
+    <dhcp>
+      <range start="192.168.122.2" end="192.168.122.254"/>
+    </dhcp>
+  </ip>
+</network>
+EOF
+
+echo "Restarting virt-manager services..."
+echo;
+sudo systemctl stop libvirtd.socket;
+sudo systemctl stop libvirtd-admin.socket;
+sudo systemctl stop libvirtd-ro.socket;
+sudo systemctl stop libvirtd;
+
+sudo systemctl status libvirtd.socket;
+sudo systemctl status libvirtd-admin.socket;
+sudo systemctl status libvirtd-ro.socket;
+
+sudo systemctl stop libvirtd;
+sudo systemctl disable libvirtd;
+sudo systemctl enable libvirtd;
+sudo systemctl start libvirtd;
+sudo systemctl restart libvirtd;
+sudo systemctl status libvirtd;
+
+sudo systemctl start libvirtd.socket;
+sudo systemctl start libvirtd-admin.socket;
+sudo systemctl start libvirtd-ro.socket;
+sudo systemctl restart libvirtd.socket;
+sudo systemctl restart libvirtd-admin.socket;
+sudo systemctl restart libvirtd-ro.socket;
+
+echo;
+echo "Configuring default virt-manager network..."
+echo;
+echo "sudo virsh list --all;";
+sudo virsh list --all;
+echo "";
+echo "sudo virsh net-define default.xml;";
+sudo virsh net-define default.xml;
+echo "";
+echo "sudo virsh net-start default;";
+sudo virsh net-start default;
+echo "";
+echo "sudo virsh net-autostart default;";
+sudo virsh net-autostart default;
+echo;
+
+sudo echo "";
+echo "############################ LISTA REGRAS IPTABLES ############################"
+sudo echo "";
+sudo echo "############################ Table Filter ############################";
+sudo iptables -t filter -S;
+sudo echo "";
+
+sudo echo "############################ Table Nat ############################";
+sudo iptables -t nat -S;
+sudo echo "";
+
+sudo echo "############################ Table Mangle ############################";
+sudo iptables -t mangle -S;
+sudo echo "";
+
+sudo echo "############################ Table Raw ############################";
+sudo iptables -t raw -S;
+sudo echo "############################ FIM LISTAR REGRAS IPTABLES ############################";
+sudo echo "";
+
+echo;

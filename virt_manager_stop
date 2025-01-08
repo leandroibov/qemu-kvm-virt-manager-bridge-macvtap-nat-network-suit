@@ -1,0 +1,28 @@
+#!/bin/bash
+echo;
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo "Stopping virt-manager services (libvirtd.socket, libvirtd-admin.socket, libvirtd-ro.socket, libvirtd) "
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo;
+sudo systemctl stop libvirtd.socket;
+sudo systemctl stop libvirtd-admin.socket;
+sudo systemctl stop libvirtd-ro.socket;
+sudo systemctl stop libvirtd;
+echo;
+
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo "Status virt-manager"
+echo "-----------------------------------------------------------------------------------------------------------------------";
+sudo systemctl status libvirtd.socket;
+sudo systemctl status libvirtd-admin.socket;
+sudo systemctl status libvirtd-ro.socket;
+sudo systemctl status libvirtd;
+
+echo;
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo "List of virt-manager networks..."
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo;
+sudo virsh list --all;
+
+

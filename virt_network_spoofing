@@ -1,0 +1,87 @@
+#!/bin/bash
+echo;
+# Check if the UID is 0 (root)
+if [ "$(id -u)" -ne 0 ]; then
+    echo "This script must be run as root!" >&2
+    read -rp "The program will finish (Type 'ok' or 'any key'): " response1
+    exit 1  # Exit the script with an error code
+fi
+
+# The script continues here if the user is root
+echo "You are logged in as root. Continuing the script..."
+echo;
+#variable mac1 to refer <mac address part of a tag to delete a line to substitute by linha with mac spoofing data...
+mac1="<mac address";
+
+
+echo "---------------------------------------------------------------";
+echo "Mac Spoofing to change mac for VM networks in virt-manager";
+echo "---------------------------------------------------------------";
+echo "The .xml files are files with the names of networks that should be created in Virt-Manager."
+echo "Some of them has mac... you want to change for some reason...";
+echo "Type the network name with the .xml extension to select the network to apply mac spoofing."
+echo;
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo "See network list..."
+ls -p /etc/libvirt/qemu/networks | grep -v /;
+echo;
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo;
+read -rp "Enter the network name:" net
+echo "The chosen network is: $net"
+echo "";
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo "Mac Vendor Spoofing with https://github.com/leandroibov/gerador-de-enderecos-mac";
+read -rp "Enter mac you want to replace for ${net%.xml} :" mac2
+echo "The chosen mac is: $mac2"
+echo "";
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo "Applying mac changing spoofing for this network...";
+sed -i "s#.*$mac1.*#<mac address='$mac2'/>#" "/etc/libvirt/qemu/networks/$net";
+echo;
+
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo "Restarting your virt-manager services and you can check if mac spoofing is working...";
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo;
+sudo systemctl start libvirtd.socket;
+sudo systemctl start libvirtd-admin.socket;
+sudo systemctl start libvirtd-ro.socket;
+sudo systemctl start libvirtd;
+sudo systemctl restart libvirtd.socket;
+sudo systemctl restart libvirtd-admin.socket;
+sudo systemctl restart libvirtd-ro.socket;
+sudo systemctl restart libvirtd;
+echo;
+
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo "Status virt-manager"
+echo "-----------------------------------------------------------------------------------------------------------------------";
+sudo systemctl status libvirtd.socket;
+sudo systemctl status libvirtd-admin.socket;
+sudo systemctl status libvirtd-ro.socket;
+sudo systemctl status libvirtd;
+
+echo;
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo "List of virt-manager networks..."
+echo "-----------------------------------------------------------------------------------------------------------------------";
+echo;
+sudo virsh list --all;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
