@@ -1,12 +1,22 @@
-#   How use this cli suit for virt manager:
+#   How to use this CLI suite for Virt-Manager for anonymity and cybersecurity advanced techniques:
 
 ##   Installing
+
+Install virt manager qemu-kvm with 
+
+sudo chmod +x qemu-kvm-install
+
+sudo ./qemu-kvm-install
+
+***now install menu and the CLIs
 
 sudo chmod +x install.sh
 
 sudo ./install.sh
 
-## What each file or command do?
+To uninstall, just use uninstall.sh in the same way!
+
+## What does each file or command do?
 
 virt_manager_start - Start virt manager services...
 
